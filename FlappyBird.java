@@ -33,6 +33,7 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
 //    int pipeHeight;
 
     // Game Logic
+    boolean gameStart = false;
     boolean gameOver = false;
     Timer gameLoop;
 
@@ -81,7 +82,7 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
             }
         });
 
-        placePipesTimer.start();
+        //placePipesTimer.start();
 
         setPreferredSize(new Dimension(boardWidth, boardHeight));
 
@@ -100,10 +101,6 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
 
         // game timer (60 FPS --> 1 Second (1000 ms) / 60)
         gameLoop = new Timer(2000/60, this);
-        gameLoop.start();
-
-
-
     }
 
     private void placePipes(){
@@ -141,12 +138,24 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
             g.drawImage(pipe.img, pipe.x, pipe.y, pipe.width, pipe.height, null);
         }
 
+
+
         // score
         g.setColor(Color.white);
         g.setFont(new Font("Arial", Font.PLAIN, 32));
+
+        if(!gameStart){
+            g.setFont(new Font("Arial", Font.PLAIN, 16));
+            g.drawString("Press ENTER to start game!", 90, boardHeight/2);
+
+        }
+
+
         if(gameOver){
             g.drawString("GAME OVER!", 80, boardHeight / 2);
-            g.drawString(" Score: " + String.valueOf((int) score), 110, boardHeight/2 + 50);
+            g.drawString("Score: " + String.valueOf((int) score), 110, boardHeight/2 + 50);
+            g.setFont(new Font("Arial", Font.PLAIN, 16));
+            g.drawString("Press ENTER to restart!", 90, boardHeight/2 + 100);
         }else{
             g.drawString(String.valueOf((int)score), 10, 35);
         }
@@ -201,8 +210,25 @@ public class FlappyBird extends JPanel implements ActionListener, KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
+        if(!gameStart && e.getKeyCode() == KeyEvent.VK_ENTER){
+            gameLoop.start();
+            placePipesTimer.start();
+            gameStart = true;
+        }
         if(e.getKeyCode() == KeyEvent.VK_SPACE){
             velocityY = -10;
+        }
+        // Restart
+        if(gameOver){
+            if(e.getKeyCode() == KeyEvent.VK_ENTER){
+                gameOver = false;
+                gameLoop.start();
+                placePipesTimer.start();
+                bird.y = birdY;
+                velocityY = 0;
+                pipes.clear();
+                score = 0;
+            }
         }
     }
     @Override
